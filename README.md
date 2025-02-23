@@ -23,7 +23,7 @@
     python ccxt_binance_data_fetcher.py
     ```
 
-    This script fetches historical data from Binance and saves it to the `trading_data/` directory.  You may need to configure API keys within this script.
+    This script fetches historical data from Binance and saves it to the `trading_data/` directory as a csv file called binance.csv. 
 
 2.  **Run Backtest:**
 
