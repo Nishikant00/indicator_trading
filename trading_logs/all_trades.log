@@ -1,0 +1,7 @@
+2025-02-24 12:00:44,837 - backtest_engine - INFO - Starting backtest...
+2025-02-24 12:00:44,845 - trading_strategy - INFO - Opening LONG position using RSI - Price: $98,336.66, RSI: 30.75
+2025-02-24 12:00:44,947 - trade_logger_RSI - INFO - Indicator: RSI, Entry Time: 2025-01-05 07:36:00, Entry Price: $98,336.66, Exit Time: 2025-01-05 11:18:00, Exit Price: $97,786.03, RSI Entry: 30.75, RSI Exit: 64.42, Profit/Loss: -0.56%
+2025-02-24 12:00:44,956 - trading_strategy - INFO - Opening LONG position using RSI - Price: $97,648.58, RSI: 33.49
+2025-02-24 12:00:44,982 - trade_logger_RSI - INFO - Indicator: RSI, Entry Time: 2025-01-05 11:35:00, Entry Price: $97,648.58, Exit Time: 2025-01-05 12:20:00, Exit Price: $97,777.64, RSI Entry: 33.49, RSI Exit: 61.74, Profit/Loss: 0.13%
+2025-02-24 12:00:45,024 - trading_strategy - INFO - Opening LONG position using RSI - Price: $97,769.65, RSI: 36.03
+2025-02-24 12:00:45,051 - backtest_engine - INFO - Backtest completed
