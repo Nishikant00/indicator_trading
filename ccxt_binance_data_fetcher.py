@@ -8,20 +8,25 @@ if not os.path.exists(DATA_DIR):
     os.makedirs(DATA_DIR)
 
 exchg = ccxt.binance() 
-days_back = 50
+days_back = 5
 symbol = 'BTC/USDT'
 timeframe = '1m'
 
 def fetch_binance_data(exchg, symbol, timeframe, days_back):
     since = exchg.parse8601((datetime.utcnow() - timedelta(days=days_back)).isoformat())
-    try:
-        data = exchg.fetchOHLCV(symbol, timeframe, since)
-        if not data:
-            print("No data retrieved")
-        return data
-    except Exception as e:
-        print(f"Error fetching Binance data: {e}")
-        return []
+    all_data = []
+    while True:
+        try:
+            data = exchg.fetchOHLCV(symbol, timeframe, since, limit=1000)
+            if not data:
+                print("No more data retrieved")
+                break
+            all_data.extend(data)
+            since = data[-1][0] + 1  
+        except Exception as e:
+            print(f"Error fetching Binance data: {e}")
+            break
+    return all_data
 
 def save_to_csv(data, symbol, timeframe, filename):
     if not data:

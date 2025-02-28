@@ -31,7 +31,7 @@ class TradeLogger:
         return os.path.join(LOGS_DIR, f"{indicator_name.lower()}_trades.log")
     
     @staticmethod
-    def log_trade(entry_time, entry_price, exit_time, exit_price, rsi_entry, rsi_exit, indicator_name):
+    def log_trade(entry_time, entry_price, exit_time, exit_price,prev_rsi, rsi_entry, rsi_exit, indicator_name):
         profit_loss = ((exit_price - entry_price) / entry_price) * 100
         log_file = TradeLogger.get_log_file(indicator_name)
         
@@ -47,6 +47,7 @@ class TradeLogger:
         logger.info(
             f"Indicator: {indicator_name}, Entry Time: {entry_time}, Entry Price: ${entry_price:,.2f}, "
             f"Exit Time: {exit_time}, Exit Price: ${exit_price:,.2f}, "
+            f"RSI Prev: {prev_rsi:.2f}, "
             f"RSI Entry: {rsi_entry:.2f}, RSI Exit: {rsi_exit:.2f}, "
             f"Profit/Loss: {profit_loss:.2f}%"
         )
@@ -60,8 +61,7 @@ class TradingStrategy:
         self.data = data
         self.logger = logging.getLogger("trading_strategy")
         self.apply_indicators()
-        self.data.dropna(inplace=True)
-    
+        print(self.data)
     def apply_indicators(self):
         for indicator, params in self.user.indicators.items():
             if indicator == "RSI":
@@ -75,22 +75,22 @@ class TradingStrategy:
         position = None
         entry_time, entry_price, rsi_entry = None, None, None
         indicator_name = "RSI"
-        
+        print(self.data)
         for i in range(1, len(self.data)):
             prev_rsi = self.data.iloc[i-1]["RSI"]
             curr_rsi = self.data.iloc[i]["RSI"]
             price = self.data.iloc[i]["close"]
             time = self.data.iloc[i]["timestamp"]
-            
+            print(time,prev_rsi, curr_rsi, price, time)
             if position is None:
                 if prev_rsi <= self.user.rsi_oversold and curr_rsi > self.user.rsi_oversold:
                     position = "BUY"
-                    entry_time, entry_price, rsi_entry = time, price, curr_rsi
-                    self.logger.info(f"Opening LONG position using {indicator_name} - Price: ${price:,.2f}, RSI: {curr_rsi:.2f}")
+                    entry_time, entry_price, rsi_entry = time, price, prev_rsi
+                    self.logger.info(f"Time:{time} Opening LONG position using {indicator_name} - Price: ${price:,.2f},PREV_RSI: {prev_rsi:.2f}, RSI: {curr_rsi:.2f}")
             
             elif position == "BUY":
                 if prev_rsi >= self.user.rsi_overbought and curr_rsi < self.user.rsi_overbought:
-                    TradeLogger.log_trade(entry_time, entry_price, time, price, rsi_entry, curr_rsi, indicator_name)
+                    TradeLogger.log_trade(entry_time, entry_price, time, price,prev_rsi, rsi_entry, curr_rsi, indicator_name)
                     position = None
 
 class BacktestEngine:
@@ -100,11 +100,11 @@ class BacktestEngine:
         if not os.path.exists(csv_path):
             self.logger.error(f"CSV file not found: {csv_path}")
             raise FileNotFoundError(f"CSV file not found: {csv_path}")
-            
+        
         self.data = pd.read_csv(csv_path)
         self.data["timestamp"] = pd.to_datetime(self.data["timestamp"], unit="ms")
         self.trading_strategy = TradingStrategy(user, self.data)
-    
+
     def run(self):
         self.logger.info("Starting backtest...")
         self.trading_strategy.backtest()
